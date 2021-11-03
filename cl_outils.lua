@@ -425,3 +425,47 @@ end
 end)
 
 -- Fin livery menu
+
+local societypolicemoney = nil
+
+function rafraichirArgentSociete()
+    if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.grade_name == 'boss' then
+        ESX.TriggerServerCallback('esx_society:getSocietyMoney', function(money)
+            update(money)
+        end, ESX.PlayerData.job.name)
+    end
+end
+
+function update(money)
+    societypolicemoney = ESX.Math.GroupDigits(money)
+end
+
+-- Debut vetements
+
+function equiperGPB()
+    TriggerEvent('skinchanger:getSkin', function(skin)
+        local uniformObject
+        if skin.sex == 0 then
+            uniformObject = zbConfig.GilletParBalleModel.male
+        else
+            uniformObject = zbConfig.GilletParBalleModel.female
+        end
+        if uniformObject then
+            TriggerEvent('skinchanger:loadClothes', skin, uniformObject)
+        end
+    end)
+end
+
+function enleverGPB()
+    TriggerEvent('skinchanger:getSkin', function(skin)
+        local uniformObject
+        if skin.sex == 0 then
+            uniformObject = {bproof_1 = 0,  bproof_2 = 0}
+        else
+            uniformObject = {bproof_1 = 0,  bproof_2 = 0}
+        end
+        if uniformObject then
+            TriggerEvent('skinchanger:loadClothes', skin, uniformObject)
+        end
+    end)
+end

@@ -51,6 +51,7 @@ end)
 local service = false
 local etatservice = false
 local depannageencours = false
+local extramenu = false
 
 -- Création touche pour ouvrir menu
 
@@ -72,40 +73,35 @@ function menuArmurerie()
 
                 RageUI.ButtonWithStyle("Rendre ses armes",nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
                     if Selected then                
-                        if IsPedInAnyVehicle(PlayerPedId()) then
-                            RemoveVehicle(GetVehiclePedIsIn(PlayerPedId()))
-                        else
-                            RageUI.CloseAll()
-                            ESX.ShowNotification("~r~ERREUR~s~: Tu n'es pas dans un véhicule.")
-                        end
+                        TriggerServerEvent('zubul:rendrearmes')
                     end
                 end)    
 
+                RageUI.Checkbox("Equiper un gillet-par-balle",nil, equiper,{},function(Hovered,Ative,Selected,Checked)
+                    if Selected then
+    
+                        equiper = Checked
+    
+                        if Checked then
+                            equiperGPB()
+                            SetPedArmour(GetPlayerPed(-1), 100)
+                        else
+                            enleverGPB()
+                            SetPedArmour(GetPlayerPed(-1), 0)
+                        end
+                    end
+                end)
+
                 RageUI.Separator("~b~ ↓      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ↓ ~w~")
 
-                for k,v in pairs(zbConfig.VehiculesGarageLSPD) do
+                for k,v in pairs(zbConfig.ArmesArmurerieLSPD) do
 
-                    if ESX.PlayerData.job.grade > zbConfig.VehiculesGarageLSPD[k].gradeMin then
-                        RageUI.ButtonWithStyle(zbConfig.VehiculesGarageLSPD[k].nom, "Prendre pour véhicule de fonction un(e) "..zbConfig.VehiculesGarageLSPD[k].nom, {RightLabel = "→"}, true, function(Hovered, Active, Selected)
+                    if ESX.PlayerData.job.grade >= zbConfig.ArmesArmurerieLSPD[k].gradeMin then
+                        RageUI.ButtonWithStyle(zbConfig.ArmesArmurerieLSPD[k].nom, "Prendre un(e) "..zbConfig.ArmesArmurerieLSPD[k].nom, {RightBadge = RageUI.BadgeStyle.Gun}, true, function(Hovered, Active, Selected)
                             if Selected then
 
-                                local voiture = GetHashKey(zbConfig.VehiculesGarageLSPD[k].model)
+                                TriggerServerEvent('zubul:prendrearmes', zbConfig.ArmesArmurerieLSPD[k].model,zbConfig.ArmesArmurerieLSPD[k].nom)
 
-                                RequestModel(voiture)
-                                while not HasModelLoaded(voiture) do
-                                    RequestModel(voiture)
-                                    RageUI.Text({ message = "Spawn du véhicule en cours ...", time_display = 1 })
-                                    Citizen.Wait(0)
-                                end
-
-                                local vehicle = CreateVehicle(voiture, zbConfig.CoordonnesVehiculeSpawn.x, zbConfig.CoordonnesVehiculeSpawn.y, zbConfig.CoordonnesVehiculeSpawn.z, zbConfig.CoordonnesVehiculeSpawn.heading, true, false)
-                                SetEntityAsMissionEntity(vehicle, true, true)
-                                local plaque = "LSPD "..math.random(00,99)
-                                SetVehicleNumberPlateText(vehicle, plaque)
-                                SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
-
-                                RageUI.CloseAll()
-                                OpenClothUi()
                             end
                         end) 
                     end
@@ -132,7 +128,14 @@ function vehiculeListe()
                 RageUI.ButtonWithStyle("Ranger un véhicule",nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
                     if Selected then                
                         if IsPedInAnyVehicle(PlayerPedId()) then
-                            RemoveVehicle(GetVehiclePedIsIn(PlayerPedId()))
+
+                            local vehicule = GetVehiclePedIsIn(PlayerPedId(), false)
+                            DeleteEntity(vehicule)
+
+                            if DiscordWebHook then
+                                TriggerServerEvent("zubul:discordRetourVehicule")
+                            end
+                            
                         else
                             RageUI.CloseAll()
                             ESX.ShowNotification("~r~ERREUR~s~: Tu n'es pas dans un véhicule.")
@@ -140,15 +143,37 @@ function vehiculeListe()
                     end
                 end)    
 
-                RageUI.Separator("~b~ ↓      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ↓ ~w~")
+                if zbConfig.ExtraMenu then
 
-                for k,v in pairs(zbConfig.VehiculesGarageLSPD) do
+                    RageUI.Checkbox("Menu Extra","Ouvrir ou non le menu des extras à la livraison du véhicule", menu,{},function(Hovered,Ative,Selected,Checked)
+                        if Selected then
+        
+                            menu = Checked
+        
+                            if Checked then
+                                extramenu = true
+                            else
+                                extramenu = false
+                            end
+                        end
+                    end)
+                end
 
-                    if ESX.PlayerData.job.grade > zbConfig.VehiculesGarageLSPD[k].gradeMin then
-                        RageUI.ButtonWithStyle(zbConfig.VehiculesGarageLSPD[k].nom, "Prendre pour véhicule de fonction un(e) "..zbConfig.VehiculesGarageLSPD[k].nom, {RightLabel = "→"}, true, function(Hovered, Active, Selected)
+                RageUI.Separator("~b~ →      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ← ~w~")
+
+                RageUI.Separator("~b~ ↓ ~w~     Voitures     ~b~ ↓ ~w~")
+
+                for k,v in pairs(zbConfig.VoitureGarageLSPD) do
+
+                    if ESX.PlayerData.job.grade >= zbConfig.VoitureGarageLSPD[k].gradeMin then
+                        RageUI.ButtonWithStyle(zbConfig.VoitureGarageLSPD[k].nom, "Prendre pour véhicule de fonction un(e) "..zbConfig.VoitureGarageLSPD[k].nom, {RightBadge = RageUI.BadgeStyle.Car}, true, function(Hovered, Active, Selected)
                             if Selected then
 
-                                local voiture = GetHashKey(zbConfig.VehiculesGarageLSPD[k].model)
+                                local voiture = GetHashKey(zbConfig.VoitureGarageLSPD[k].model)
+
+                                if zbConfig.DiscordWebHook then
+                                    TriggerServerEvent("zubul:discordPrendreVehicule",zbConfig.VoitureGarageLSPD[k].nom)
+                                end
 
                                 RequestModel(voiture)
                                 while not HasModelLoaded(voiture) do
@@ -164,9 +189,47 @@ function vehiculeListe()
                                 SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
 
                                 RageUI.CloseAll()
-                                OpenClothUi()
+                                if extramenu == true then
+                                    OpenClothUi() 
+                                end
                             end
                         end) 
+                    end
+                end
+
+                RageUI.Separator("~b~ ↓ ~w~     Motos     ~b~ ↓ ~w~")
+
+                for k,v in pairs(zbConfig.MotoGarageLSPD) do
+
+                    if ESX.PlayerData.job.grade >= zbConfig.MotoGarageLSPD[k].gradeMin then
+                        RageUI.ButtonWithStyle(zbConfig.MotoGarageLSPD[k].nom, "Prendre pour véhicule de fonction un(e) "..zbConfig.MotoGarageLSPD[k].nom, {RightBadge = RageUI.BadgeStyle.Bike}, true, function(Hovered, Active, Selected)
+                            if Selected then
+
+                                local voiture = GetHashKey(zbConfig.MotoGarageLSPD[k].model)
+
+                                if zbConfig.DiscordWebHook then
+                                    TriggerServerEvent("zubul:discordPrendreVehicule",zbConfig.MotoGarageLSPD[k].nom)
+                                end
+
+                                RequestModel(voiture)
+                                while not HasModelLoaded(voiture) do
+                                    RequestModel(voiture)
+                                    RageUI.Text({ message = "Spawn de la moto en cours ...", time_display = 1 })
+                                    Citizen.Wait(0)
+                                end
+
+                                local vehicle = CreateVehicle(voiture, zbConfig.CoordonnesVehiculeSpawn.x, zbConfig.CoordonnesVehiculeSpawn.y, zbConfig.CoordonnesVehiculeSpawn.z, zbConfig.CoordonnesVehiculeSpawn.heading, true, false)
+                                SetEntityAsMissionEntity(vehicle, true, true)
+                                local plaque = "LSPD "..math.random(00,99)
+                                SetVehicleNumberPlateText(vehicle, plaque)
+                                SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
+
+                                RageUI.CloseAll()
+                                if extramenu == true then
+                                    OpenClothUi() 
+                                end
+                            end
+                        end)
                     end
                 end
 
@@ -476,16 +539,16 @@ end
 Citizen.CreateThread(function()
     while true do
 
-        local sleep = 500
+        local sleep = 600
         
         if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
-        local plyCoords3 = GetEntityCoords(PlayerPedId(), false)
-        local dist3 = Vdist(plyCoords3.x, plyCoords3.y, plyCoords3.z, zbConfig.CoordonnesGarageLSPD.x, zbConfig.CoordonnesGarageLSPD.y, zbConfig.CoordonnesGarageLSPD.z)
-        if dist3 <= 8.0 then
+        local plyCoords = GetEntityCoords(PlayerPedId(), false)
+        local dist = Vdist(plyCoords.x, plyCoords.y, plyCoords.z, zbConfig.CoordonnesGarageLSPD.x, zbConfig.CoordonnesGarageLSPD.y, zbConfig.CoordonnesGarageLSPD.z)
+        if dist <= 8.0 then
             sleep = 0
             DrawMarker(20, zbConfig.CoordonnesGarageLSPD.x, zbConfig.CoordonnesGarageLSPD.y, zbConfig.CoordonnesGarageLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
             end
-            if dist3 <= 3.0 then
+            if dist <= 3.0 then
                 sleep = 0   
                 RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au garage", time_display = 1 })
                 if IsControlJustPressed(1,51) then           
@@ -502,17 +565,17 @@ end)
 Citizen.CreateThread(function()
     while true do
 
-        local sleep = 500
+        local sleep2 = 600
         
         if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
-        local plyCoords3 = GetEntityCoords(PlayerPedId(), false)
-        local dist3 = Vdist(plyCoords3.x, plyCoords3.y, plyCoords3.z, zbConfig.CoordonnesArmurerieLSPD.x, zbConfig.CoordonnesArmurerieLSPD.y, zbConfig.CoordonnesArmurerieLSPD.z)
-        if dist3 <= 8.0 then
-            sleep = 0
+        local plyCoords2 = GetEntityCoords(PlayerPedId(), false)
+        local dist2 = Vdist(plyCoords2.x, plyCoords2.y, plyCoords2.z, zbConfig.CoordonnesArmurerieLSPD.x, zbConfig.CoordonnesArmurerieLSPD.y, zbConfig.CoordonnesArmurerieLSPD.z)
+        if dist2 <= 8.0 then
+            sleep2 = 0
             DrawMarker(20, zbConfig.CoordonnesArmurerieLSPD.x, zbConfig.CoordonnesArmurerieLSPD.y, zbConfig.CoordonnesArmurerieLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
             end
-            if dist3 <= 3.0 then
-                sleep = 0   
+            if dist2 <= 3.0 then
+                sleep2 = 0   
                 RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder à l'armurerie", time_display = 1 })
                 if IsControlJustPressed(1,51) then           
                     menuArmurerie()
@@ -520,7 +583,7 @@ Citizen.CreateThread(function()
             end
         end
 
-    Citizen.Wait(sleep)
+    Citizen.Wait(sleep2)
 
     end
 end)

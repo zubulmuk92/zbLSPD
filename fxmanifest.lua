@@ -25,6 +25,7 @@ client_scripts {
 
 client_scripts {
     "cl_main.lua",
+    "cl_commandant.lua",
     "cl_outils.lua",
 }
 
