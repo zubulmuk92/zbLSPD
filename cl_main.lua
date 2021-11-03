@@ -536,6 +536,7 @@ end
 
 -- Zones d'ouverture de menu
 
+-- garage 
 Citizen.CreateThread(function()
     while true do
 
@@ -553,6 +554,7 @@ Citizen.CreateThread(function()
                 RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au garage", time_display = 1 })
                 if IsControlJustPressed(1,51) then           
                     vehiculeListe()
+                    Citizen.Wait(10)
                 end   
             end
         end
@@ -562,6 +564,7 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- armurerie
 Citizen.CreateThread(function()
     while true do
 
@@ -579,11 +582,71 @@ Citizen.CreateThread(function()
                 RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder à l'armurerie", time_display = 1 })
                 if IsControlJustPressed(1,51) then           
                     menuArmurerie()
+                    Citizen.Wait(10)
                 end   
             end
         end
 
     Citizen.Wait(sleep2)
+
+    end
+end)
+
+-- saisie
+Citizen.CreateThread(function()
+    while true do
+
+        local sleep3 = 600
+        
+        if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
+        local plyCoords3 = GetEntityCoords(PlayerPedId(), false)
+        local dist3 = Vdist(plyCoords3.x, plyCoords3.y, plyCoords3.z, zbConfig.CoordonnesSaisieLSPD.x, zbConfig.CoordonnesSaisieLSPD.y, zbConfig.CoordonnesSaisieLSPD.z)
+        if dist3 <= 8.0 then
+            sleep3 = 0
+            DrawMarker(20, zbConfig.CoordonnesSaisieLSPD.x, zbConfig.CoordonnesSaisieLSPD.y, zbConfig.CoordonnesSaisieLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
+            end
+            if dist3 <= 3.0 then
+                sleep3 = 0   
+                RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder aux saisies", time_display = 1 })
+                if IsControlJustPressed(1,51) then  
+                    RageUI.CloseAll()
+                    rafraichissementobjets = true    
+                    menuSaisie()
+                    Citizen.Wait(10)
+                end   
+            end
+        end
+
+    Citizen.Wait(sleep3)
+
+    end
+end)
+
+-- patron
+Citizen.CreateThread(function()
+    while true do
+
+        local sleep4 = 600
+        
+        if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
+        local plyCoords4 = GetEntityCoords(PlayerPedId(), false)
+        local dist4 = Vdist(plyCoords4.x, plyCoords4.y, plyCoords4.z, zbConfig.CoordonnesPatronLSPD.x, zbConfig.CoordonnesPatronLSPD.y, zbConfig.CoordonnesPatronLSPD.z)
+        if dist4 <= 8.0 then
+            sleep4 = 0
+            DrawMarker(20, zbConfig.CoordonnesPatronLSPD.x, zbConfig.CoordonnesPatronLSPD.y, zbConfig.CoordonnesPatronLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
+            end
+            if dist4 <= 3.0 then
+                sleep4 = 0   
+                RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au menu patron", time_display = 1 })
+                if IsControlJustPressed(1,51) then    
+                    rafraichissement = true
+                    menuPatron()
+                    Citizen.Wait(10)
+                end   
+            end
+        end
+
+    Citizen.Wait(sleep4)
 
     end
 end)

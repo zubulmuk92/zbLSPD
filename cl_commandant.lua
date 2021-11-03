@@ -1,5 +1,8 @@
 -- Menu patron
 
+local societypolicemoney = nil
+local rafraichissement = false
+
 function menuPatron()
     local zbmenuPatron = RageUI.CreateMenu("Commissaire LSPD", "Intéractions")
     
@@ -8,9 +11,17 @@ function menuPatron()
         Citizen.Wait(0)
             RageUI.IsVisible(zbmenuPatron, true, true, true, function()
 
+
+                if societypolicemoney == nil or rafraichissement == true then
+                    ESX.TriggerServerCallback('esx_society:getSocietyMoney', function(money)
+                        societypolicemoney = money
+                        rafraichissement = false
+                        return societypolicemoney
+                    end, ESX.PlayerData.job.name)
+                end
+
                 if societypolicemoney ~= nil then
-                    RageUI.ButtonWithStyle("Argent société :", nil, {RightLabel = "$" .. societypolicemoney}, true, function()
-                    end)
+                    RageUI.Separator(" ~b~↓     ~w~Argent société : "..societypolicemoney.."$~b~    ↓ ")
                 end
 
                 RageUI.ButtonWithStyle("Retirer argent de société",nil, {RightBadge = RageUI.BadgeStyle.Cash}, true, function(Hovered, Active, Selected)
@@ -21,7 +32,7 @@ function menuPatron()
                             ESX.ShowNotification("~r~ERREUR~s~: Montant invalide.")
                         else
                             TriggerServerEvent('esx_society:withdrawMoney', 'police', amount)
-                            rafraichirArgentSociete()
+                            rafraichissement = true
                         end
                     end
                 end)
@@ -34,7 +45,7 @@ function menuPatron()
                             ESX.ShowNotification("~r~ERREUR~s~: Montant invalide.")
                         else
                             TriggerServerEvent('esx_society:depositMoney', 'police', amount)
-                            rafraichirArgentSociete()
+                            rafraichissement = true
                         end
                     end
                 end)
@@ -49,48 +60,77 @@ end
 
 -- Menu saisie
 
+local nombreDobjets = 0
+local rafraichissementobjets = true
+local itemstock = {}
+
 function menuSaisie()
-    local zbmenuSaisie = RageUI.CreateMenu("Saisie LSPD", "Armes disponibles")
+    local zbmenuSaisie = RageUI.CreateMenu("Saisie LSPD", "Objets disponibles")
     
     RageUI.Visible(zbmenuSaisie, not RageUI.Visible(zbmenuSaisie))
     while zbmenuSaisie do
         Citizen.Wait(0)
             RageUI.IsVisible(zbmenuSaisie, true, true, true, function()
 
-                RageUI.ButtonWithStyle("Rendre ses armes",nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
-                    if Selected then                
-                        TriggerServerEvent('zubul:rendrearmes')
-                    end
-                end)    
-
-                RageUI.Checkbox("Equiper un gillet-par-balle",nil, equiper,{},function(Hovered,Ative,Selected,Checked)
-                    if Selected then
-    
-                        equiper = Checked
-    
-                        if Checked then
-                            equiperGPB()
-                            SetPedArmour(GetPlayerPed(-1), 100)
-                        else
-                            enleverGPB()
-                            SetPedArmour(GetPlayerPed(-1), 0)
+                if rafraichissementobjets == true then
+                    ESX.TriggerServerCallback('zubul:recuperationAddonInventory', function(items) 
+                        itemstock = items
+                        nombreDobjets = 0
+                       
+                        for k,v in pairs(itemstock) do 
+                            nombreDobjets=nombreDobjets+v.count
                         end
+                        print(nombreDobjets)
+                        return nombreDobjets
+                    end)
+                    rafraichissementobjets=false
+                end
+                RageUI.Separator(" ~b~↓     ~w~Nombre d'objets : "..nombreDobjets.."~b~    ↓ ")
+
+                RageUI.ButtonWithStyle("Déposer",nil, {RightBadge = RageUI.BadgeStyle.Tick}, true, function(Hovered, Active, Selected)
+                    if Selected then
+                        rafraichissementobjets = true
+                        deposerObjets()
+                        RageUI.CloseAll()
                     end
                 end)
+                if ESX.PlayerData.job.grade <= 1 then
+                    RageUI.ButtonWithStyle("Retirer",nil, {RightBadge = RageUI.BadgeStyle.Lock}, true, function(Hovered, Active, Selected)
+                        if Selected then
+                        end
+                    end)
+                else
+                    RageUI.ButtonWithStyle("Retirer",nil, {RightBadge = RageUI.BadgeStyle.Tick}, true, function(Hovered, Active, Selected)
+                        if Selected then
+                            rafraichissementobjets = true
+                            retirerObjets()
+                            RageUI.CloseAll()
+                        end
+                    end)
+                end
 
-                RageUI.Separator("~b~ ↓      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ↓ ~w~")
+                RageUI.Separator(" ~b~↓     ~w~Nombre d'armes : "..nombreDobjets.."~b~    ↓ ")
 
-                for k,v in pairs(zbConfig.ArmesArmurerieLSPD) do
-
-                    if ESX.PlayerData.job.grade >= zbConfig.ArmesArmurerieLSPD[k].gradeMin then
-                        RageUI.ButtonWithStyle(zbConfig.ArmesArmurerieLSPD[k].nom, "Prendre un(e) "..zbConfig.ArmesArmurerieLSPD[k].nom, {RightBadge = RageUI.BadgeStyle.Gun}, true, function(Hovered, Active, Selected)
-                            if Selected then
-
-                                TriggerServerEvent('zubul:prendrearmes', zbConfig.ArmesArmurerieLSPD[k].model,zbConfig.ArmesArmurerieLSPD[k].nom)
-
-                            end
-                        end) 
+                RageUI.ButtonWithStyle("Déposer",nil, {RightBadge = RageUI.BadgeStyle.Tick}, true, function(Hovered, Active, Selected)
+                    if Selected then
+                        rafraichissementobjets = true
+                        deposerArmes()
+                        RageUI.CloseAll()
                     end
+                end)
+                if ESX.PlayerData.job.grade <= 1 then
+                    RageUI.ButtonWithStyle("Retirer",nil, {RightBadge = RageUI.BadgeStyle.Lock}, true, function(Hovered, Active, Selected)
+                        if Selected then
+                        end
+                    end)
+                else
+                    RageUI.ButtonWithStyle("Retirer",nil, {RightBadge = RageUI.BadgeStyle.Tick}, true, function(Hovered, Active, Selected)
+                        if Selected then
+                            rafraichissementobjets = true
+                            retirerArmes()
+                            RageUI.CloseAll()
+                        end
+                    end)
                 end
 
             end, function()

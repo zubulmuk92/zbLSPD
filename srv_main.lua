@@ -1,7 +1,7 @@
 ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-
+TriggerEvent('esx_society:registerSociety', 'police', 'Police', 'society_police', 'society_police', 'society_police', {type = 'public'})
 
 
 

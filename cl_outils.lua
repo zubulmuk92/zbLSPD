@@ -426,18 +426,119 @@ end)
 
 -- Fin livery menu
 
-local societypolicemoney = nil
+itemstock = {}
+function retirerObjets()
+    local zbretirerObjets = RageUI.CreateMenu("Retirer", "Police")
+    ESX.TriggerServerCallback('zubul:recuperationAddonInventory', function(items) 
+    itemstock = items
+   
+    RageUI.Visible(zbretirerObjets, not RageUI.Visible(zbretirerObjets))
+        while zbretirerObjets do
+            Citizen.Wait(0)
+                RageUI.IsVisible(zbretirerObjets, true, true, true, function()
+                        for k,v in pairs(itemstock) do 
+                            if v.count > 0 then
+                            RageUI.ButtonWithStyle(v.label, nil, {RightLabel = v.count}, true, function(Hovered, Active, Selected)
+                                if Selected then
+                                    local count = KeyboardInput("Combien ?", "", 2)
+                                    TriggerServerEvent('zubul:recuperationAddonInventoryUnParUn', v.name, tonumber(count))
+                                    retirerObjets()
+                                end
+                            end)
+                        end
+                    end
+                end, function()
+                end)
+            if not RageUI.Visible(zbretirerObjets) then
+                zbretirerObjets = RMenu:DeleteType("Retirer", true)
+        end
+    end
+     end)
+end
 
-function rafraichirArgentSociete()
-    if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.grade_name == 'boss' then
-        ESX.TriggerServerCallback('esx_society:getSocietyMoney', function(money)
-            update(money)
-        end, ESX.PlayerData.job.name)
+function deposerObjets()
+    local zbdeposerObjets = RageUI.CreateMenu("Coffre", "Police")
+    ESX.TriggerServerCallback('zubul:recupererInventaireJoueur', function(inventory)
+        RageUI.Visible(zbdeposerObjets, not RageUI.Visible(zbdeposerObjets))
+    while zbdeposerObjets do
+        Citizen.Wait(0)
+            RageUI.IsVisible(zbdeposerObjets, true, true, true, function()
+                for i=1, #inventory.items, 1 do
+                    if inventory ~= nil then
+                        local item = inventory.items[i]
+                            if item.count > 0 then
+                                RageUI.ButtonWithStyle(item.label, nil, {RightLabel = item.count}, true, function(Hovered, Active, Selected)
+                                    if Selected then
+                                    local count = KeyboardInput("Combien ?", '' , 8)
+                                    TriggerServerEvent('zubul:deposerSaisieZebiJenAiMarre', item.name, tonumber(count))
+                                    ADeposerobjet()
+                                end
+                            end)
+                        end
+                    end
+                end
+                    end, function()
+                    end)
+                if not RageUI.Visible(zbdeposerObjets) then
+                    zbdeposerObjets = RMenu:DeleteType("Coffre", true)
+            end
+        end
+    end)
+end
+
+function deposerArmes()
+    local zbretirerArmes = RageUI.CreateMenu("Coffre", "Police")
+        RageUI.Visible(zbretirerArmes, not RageUI.Visible(zbretirerArmes))
+    while zbretirerArmes do
+        Citizen.Wait(0)
+        RageUI.IsVisible(zbretirerArmes, true, true, true, function()
+            local playerPed = PlayerPedId()
+            local weaponList = ESX.GetWeaponList()
+        
+            for i = 1, #weaponList, 1 do
+                local weaponHash = GetHashKey(weaponList[i].name)
+        
+                if HasPedGotWeapon(playerPed, weaponHash, false) and weaponList[i].name ~= 'WEAPON_UNARMED' then
+                    local ammo = GetAmmoInPedWeapon(playerPed, weaponHash)
+                    RageUI.ButtonWithStyle(weaponList[i].label, nil, {RightLabel = ammo}, true, function(Hovered, Active, Selected)
+                        if Selected then
+                            ESX.TriggerServerCallback('zubul:ajouterArmesSaisie', function()
+                                deposerArmes()
+                            end, weaponList[i].name, ammo)
+                        end
+                    end)
+                end
+            end
+                end, function()
+                end)
+            if not RageUI.Visible(zbretirerArmes) then
+                zbretirerArmes = RMenu:DeleteType("Coffre", true)
+        end
     end
 end
 
-function update(money)
-    societypolicemoney = ESX.Math.GroupDigits(money)
+function retirerArmes()
+    local zbdeposerArmes = RageUI.CreateMenu("Coffre", "Police")
+    ESX.TriggerServerCallback('zubul:recuperationArmesEnStock', function(weapons)
+        RageUI.Visible(zbdeposerArmes, not RageUI.Visible(zbdeposerArmes))
+    while zbdeposerArmes do
+        Citizen.Wait(0)
+            RageUI.IsVisible(zbdeposerArmes, true, true, true, function()
+                for i=1, #weapons, 1 do
+                    RageUI.ButtonWithStyle(weapons[i].name, nil, {RightLabel = weapons[i].ammo}, true, function(Hovered, Active, Selected)
+                        if Selected then
+
+                            retirerArmes()
+                        end
+                    end)
+                end
+                    end, function()
+                    end)
+                if not RageUI.Visible(zbdeposerArmes) then
+                    zbdeposerArmes = RMenu:DeleteType("Coffre", true)
+            end
+        end
+    end)
 end
 
 -- Debut vetements

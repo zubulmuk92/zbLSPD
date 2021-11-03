@@ -50,7 +50,7 @@ zbConfig = {
 
     HelicoGarageLSPD = {
         {model = "policehmv",nom="Hélicoptère",gradeMin=3},
-    }
+    },
 
     -- Coordonnes de spawn du véhicules
     CoordonnesVehiculeSpawn = {x=447.9956, y=-1022.334, z=28.48792,heading=90.7086},
@@ -83,6 +83,12 @@ zbConfig = {
 			bproof_1 = 2,  bproof_2 = 0
 		}
     },
+
+    -- Coordonnes ouverture du menu
+    CoordonnesSaisieLSPD = {x=451.7538, y=-999.033, z=30.67834},
+
+    -- Coordonnes ouverture du menu
+    CoordonnesPatronLSPD = {x=460.7209, y=-985.556, z=30.71204},
 
     -- TODO : Vestiaire
     VetementLSPD = {
@@ -237,24 +243,5 @@ zbConfig = {
                 ears_1 = 2,     ears_2 = 0
             }
         },
-
-        bullet_wear = {
-            male = {
-                bproof_1 = 2,  bproof_2 = 0
-            },
-            female = {
-                bproof_1 = 2,  bproof_2 = 0
-            }
-        },
-
-        bullet_wearno = {
-            male = {
-                bproof_1 = 0,  bproof_2 = 0
-            },
-            female = {
-                bproof_1 = 0,  bproof_2 = 0
-            }
-        },
-
     }
 }
