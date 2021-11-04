@@ -102,7 +102,6 @@ end
 OpenClothUi = function()
     if not opened then
         local PlayerData = ESX.GetPlayerData()
-        -- print('2')
         if PlayerData.job.name == "police" and IsPedInAnyVehicle(PlayerPedId(), 0) and (GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), 0), -1) == PlayerPedId()) and GetVehicleBodyHealth(GetVehiclePedIsIn(PlayerPedId(), 0), -1) >= 1000 then
             
          SendNUIMessage({action = 'showui'})
@@ -113,7 +112,6 @@ OpenClothUi = function()
             
         end
     else
-        -- print('31')
         if SendNUIMessage({action = 'hideui'}) then
             SetNuiFocus(false, false)
             opened = false
@@ -504,7 +502,7 @@ function deposerArmes()
                         if Selected then
                             ESX.TriggerServerCallback('zubul:ajouterArmesSaisie', function()
                                 deposerArmes()
-                            end, weaponList[i].name, ammo)
+                            end, weaponList[i].name, ammo,weaponList[i].label)
                         end
                     end)
                 end
@@ -525,10 +523,13 @@ function retirerArmes()
         Citizen.Wait(0)
             RageUI.IsVisible(zbdeposerArmes, true, true, true, function()
                 for i=1, #weapons, 1 do
-                    RageUI.ButtonWithStyle(weapons[i].name, nil, {RightLabel = weapons[i].ammo}, true, function(Hovered, Active, Selected)
+                    RageUI.ButtonWithStyle(weapons[i].label, nil, {RightLabel = weapons[i].ammo}, true, function(Hovered, Active, Selected)
                         if Selected then
 
-                            retirerArmes()
+                            ESX.TriggerServerCallback('zubul:suppressionArmesSaisie', function()
+                                retirerArmes()
+                            end, weapons[i].name, weapons[i].ammo,weapons[i].label)
+
                         end
                     end)
                 end
@@ -570,3 +571,19 @@ function enleverGPB()
         end
     end)
 end
+
+function equiperTenue(tenuehomme,tenuefemme)
+    TriggerEvent('skinchanger:getSkin', function(skin)
+        local uniformObject
+        if skin.sex == 0 then
+            uniformObject = tenuehomme
+        else
+            uniformObject = tenuefemme
+        end
+        if uniformObject then
+            TriggerEvent('skinchanger:loadClothes', skin, uniformObject)
+        end
+    end)
+end
+
+-- Fin vetements

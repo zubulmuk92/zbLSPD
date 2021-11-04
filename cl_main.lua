@@ -61,6 +61,63 @@ Keys.Register('F6', 'LSPD', 'Ouvrir le menu LSPD', function()
 	end
 end)
 
+-- Menu vestiaire
+
+function menuVestiaire()
+    local zbmenuVestiaire = RageUI.CreateMenu("Vestiaire", "Vêtements disponibles")
+    RageUI.Visible(zbmenuVestiaire, not RageUI.Visible(zbmenuVestiaire))
+    
+    while zbmenuVestiaire do
+        Citizen.Wait(0)
+            RageUI.IsVisible(zbmenuVestiaire, true, true, true, function()
+
+                RageUI.Separator("~b~ →      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ← ~w~")
+
+                RageUI.ButtonWithStyle("Prendre votre tenue de ~b~Civile~w~", nil, {RightBadge = RageUI.BadgeStyle.Clothes}, true, function(Hovered, Active, Selected)
+                    if Selected then
+                        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
+                            TriggerEvent('skinchanger:loadSkin', skin)
+                        end)
+                    end
+                end)
+
+                    
+                for k,v in pairs(zbConfig.VetementLSPD) do
+                    local gradeNom = string.lower(ESX.PlayerData.job.grade_name)
+                    if k == gradeNom then
+                        RageUI.ButtonWithStyle("Prendre votre tenue de ~b~ "..ESX.PlayerData.job.grade_label.."~w~", nil, {RightBadge = RageUI.BadgeStyle.Clothes}, true, function(Hovered, Active, Selected)
+                            if Selected then
+                                equiperTenue(zbConfig.VetementLSPD[k].male,zbConfig.VetementLSPD[k].female)
+                            end
+                        end)
+                    end
+                end
+
+                RageUI.Separator("~b~ ↓      ~w~Accessoires~b~      ↓ ~w~")
+
+                RageUI.Checkbox("Mettre une casquette",nil, equiper,{},function(Hovered,Ative,Selected,Checked)
+                    if Selected then
+    
+                        equiper = Checked
+    
+                        if Checked then
+                            equiperGPB()
+                            SetPedArmour(GetPlayerPed(-1), 100)
+                        else
+                            enleverGPB()
+                            SetPedArmour(GetPlayerPed(-1), 0)
+                        end
+                    end
+                end)
+
+            end, function()
+        end)
+        if not RageUI.Visible(zbmenuVestiaire) then
+            zbmenuVestiaire = RMenu:DeleteType("Vestiaire", true)
+        end
+    end
+end
+
 -- Menu armurerie
 
 function menuArmurerie()
@@ -647,6 +704,33 @@ Citizen.CreateThread(function()
         end
 
     Citizen.Wait(sleep4)
+
+    end
+end)
+
+-- vestiaire
+Citizen.CreateThread(function()
+    while true do
+
+        local sleep5 = 600
+        
+        if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
+        local plyCoords5 = GetEntityCoords(PlayerPedId(), false)
+        local dist5 = Vdist(plyCoords5.x, plyCoords5.y, plyCoords5.z, zbConfig.CoordonnesVetementLSPD.x, zbConfig.CoordonnesVetementLSPD.y, zbConfig.CoordonnesVetementLSPD.z)
+        if dist5 <= 8.0 then
+            sleep5 = 0
+            DrawMarker(20, zbConfig.CoordonnesVetementLSPD.x, zbConfig.CoordonnesVetementLSPD.y, zbConfig.CoordonnesVetementLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
+            end
+            if dist5 <= 3.0 then
+                sleep5 = 0   
+                RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au vestiaire", time_display = 1 })
+                if IsControlJustPressed(1,51) then    
+                    menuVestiaire()
+                end   
+            end
+        end
+
+    Citizen.Wait(sleep5)
 
     end
 end)

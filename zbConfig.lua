@@ -13,7 +13,7 @@ zbConfig = {
     PictureNotification = "CHAR_ABIGAIL",
 
     -- Discord Webhook
-    DiscordWebHook = false, -- mettre en true si vous voulez recevoir des messages discord , penser a mettre les liens des webhooks
+    DiscordWebHook = true, -- mettre en true si vous voulez recevoir des messages discord , penser a mettre les liens des webhooks
     DiscordWebHookLienPriseService = "https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
     DiscordWebHookLienQuitterService = "https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
 
@@ -23,6 +23,9 @@ zbConfig = {
     DiscordWebHookLienPriseArmes ="https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
     DiscordWebHookLienRetourArmes="https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
 
+    DiscordWebHookLienActionPatron="https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
+
+    DiscordWebHookLienSaisies="https://discordapp.com/api/webhooks/904732233053659136/y97QMxbJvLJQ55FkYMA8mRkb8YykURoXeIdp5A32qBliAw4QkVBqan_3hvFuIC8WaFfy",
     -- Garage LSPD
 
     -- Coordonnes ouverture du menu/ped
@@ -91,6 +94,7 @@ zbConfig = {
     CoordonnesPatronLSPD = {x=460.7209, y=-985.556, z=30.71204},
 
     -- TODO : Vestiaire
+    CoordonnesVetementLSPD = {x=462.844, y=-996.5011, z=30.67834},
     VetementLSPD = {
         recruit = {
             male = {
