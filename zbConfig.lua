@@ -5,7 +5,7 @@ zbConfig = {
     BlipCoordonnes = {x = 423.13, y = -978.85, z = 30.70},
     BlipSprite = 60,
     BlipColour = 29,
-    BlipScale = 0.65,
+    BlipScale = 1.0,
     NomDuBlip = "LSPD",
     
     -- Config charPicture des notifications
@@ -29,37 +29,37 @@ zbConfig = {
     -- Garage LSPD
 
     -- Coordonnes ouverture du menu/ped
-    CoordonnesGarageLSPD = {x=447.7582, y=-1028.374, z=28.62268},
-    GarageLSPDPed = {x=447.7582, y=-1028.374, z=28.62268, heading = 28.8, model = "s_m_y_cop_01"},
+    CoordonnesGarageLSPD = {x=441.37, y=-974.70, z=25.70},
+    GarageLSPDPed = {x=441.37, y=-974.70, z=25.70, heading=179.49, model = "s_m_y_cop_01"},
 
     -- Config des véhicules disponbiles dans le menu
     -- model : modèle du véhicule , ex : adder,police,police2, etc...
     -- nom : le nom qui est affiché dans le menu, ex : Adder,Dodge de la police,Moto de police, etc...
     -- gradeMin : grade minimum pour accéder au véhicule ( de 0 à 5 )
     VoitureGarageLSPD = {
-        {model = "police2", nom ="Test", gradeMin =0},
-        {model = "police3", nom ="Test2", gradeMin =1},
+        {nom = "Dodge Challenger", model ="polcharger18", gradeMin =0},
+        {nom = "Jeep Durango", model ="poldurango", gradeMin =1},
+        {nom = "Dodge RAM", model ="polsilverado19", gradeMin =2},
+
     },
 
     MotoGarageLSPD = {
-        {model = "policeb", nom ="Moto", gradeMin =0},
+        {model = "Moto cross", nom ="polcross", gradeMin =1},
     },
 
     -- Coordonnes ouverture du menu/ped
-
-    -- TODO : garage helico
-    CoordonnesGarageHelicoLSPD = {x=447.7582, y=-1028.374, z=28.62268},
-    GarageHelicoLSPDPed = {x=447.7582, y=-1028.374, z=28.62268, heading = 28.8, model = "s_m_y_cop_01"},
+    CoordonnesGarageHelicoLSPD = {x=463.74, y=-982.18, z=43.69},
+    GarageHelicoLSPDPed = {x=463.74, y=-982.18, z=43.69, heading=90.26, model = "s_m_y_cop_01"},
 
     HelicoGarageLSPD = {
-        {model = "policehmv",nom="Hélicoptère",gradeMin=3},
+        {model = "polheli",nom="Hélicoptère",gradeMin=3},
     },
 
     -- Coordonnes de spawn du véhicules
-    CoordonnesVehiculeSpawn = {x=447.9956, y=-1022.334, z=28.48792,heading=90.7086},
+    CoordonnesVehiculeSpawn = {x=449.36, y=-981.50, z=43.69, heading=3.21},
 
     -- Afficher le menu des extras lorsque l'on spawn un véhicule
-    ExtraMenu = true,
+    ExtraMenu = false,
 
     -- Coordonnes ouverture du menu/ped
     CoordonnesArmurerieLSPD = {x=480.422, y=-996.6329, z=30.67834},

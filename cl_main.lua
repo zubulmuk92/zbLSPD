@@ -200,22 +200,6 @@ function vehiculeListe()
                     end
                 end)    
 
-                if zbConfig.ExtraMenu then
-
-                    RageUI.Checkbox("Menu Extra","Ouvrir ou non le menu des extras à la livraison du véhicule", menu,{},function(Hovered,Ative,Selected,Checked)
-                        if Selected then
-        
-                            menu = Checked
-        
-                            if Checked then
-                                extramenu = true
-                            else
-                                extramenu = false
-                            end
-                        end
-                    end)
-                end
-
                 RageUI.Separator("~b~ →      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ← ~w~")
 
                 RageUI.Separator("~b~ ↓ ~w~     Voitures     ~b~ ↓ ~w~")
@@ -244,6 +228,17 @@ function vehiculeListe()
                                 local plaque = "LSPD "..math.random(00,99)
                                 SetVehicleNumberPlateText(vehicle, plaque)
                                 SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
+                                SetVehicleExtra(vehicle , 1, 0)
+                                SetVehicleExtra(vehicle , 2, 0)
+                                SetVehicleExtra(vehicle , 3, 0)
+                                SetVehicleExtra(vehicle , 4, 0)
+                                SetVehicleExtra(vehicle , 5, 0)
+                                SetVehicleExtra(vehicle , 6, 0)
+                                SetVehicleExtra(vehicle , 7, 0)
+                                SetVehicleExtra(vehicle , 8, 0)
+
+                                SetVehicleLivery(vehicle, 0)
+
 
                                 RageUI.CloseAll()
                                 if extramenu == true then
@@ -294,6 +289,90 @@ function vehiculeListe()
             end)
         if not RageUI.Visible(zbVehiculeListe) then
             zbVehiculeListe = RMenu:DeleteType("Garage LSPD", true)
+        end
+    end
+end
+
+-- Menu véhicule aérien liste
+
+function vehiculeAerienListe()
+    local zbvehiculeAerienListe = RageUI.CreateMenu("Garage Aérien LSPD", "Véhicules disponibles")
+    
+    RageUI.Visible(zbvehiculeAerienListe, not RageUI.Visible(zbvehiculeAerienListe))
+    while zbvehiculeAerienListe do
+        Citizen.Wait(0)
+            RageUI.IsVisible(zbvehiculeAerienListe, true, true, true, function()
+
+                RageUI.ButtonWithStyle("Ranger un véhicule",nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
+                    if Selected then                
+                        if IsPedInAnyVehicle(PlayerPedId()) then
+
+                            local vehicule = GetVehiclePedIsIn(PlayerPedId(), false)
+                            DeleteEntity(vehicule)
+
+                            if DiscordWebHook then
+                                TriggerServerEvent("zubul:discordRetourVehicule")
+                            end
+                            
+                        else
+                            RageUI.CloseAll()
+                            ESX.ShowNotification("~r~ERREUR~s~: Tu n'es pas dans un véhicule.")
+                        end
+                    end
+                end)    
+
+                RageUI.Separator("~b~ →      ~w~Ton grade : ~b~"..ESX.PlayerData.job.grade_label.." ~b~      ← ~w~")
+
+                RageUI.Separator("~b~ ↓ ~w~     Hélicoptères     ~b~ ↓ ~w~")
+
+                for k,v in pairs(zbConfig.HelicoGarageLSPD) do
+
+                    if ESX.PlayerData.job.grade >= zbConfig.HelicoGarageLSPD[k].gradeMin then
+                        RageUI.ButtonWithStyle(zbConfig.HelicoGarageLSPD[k].nom, "Prendre pour véhicule de fonction un(e) "..zbConfig.HelicoGarageLSPD[k].nom, {RightBadge = RageUI.BadgeStyle.Car}, true, function(Hovered, Active, Selected)
+                            if Selected then
+
+                                local voiture = GetHashKey(zbConfig.HelicoGarageLSPD[k].model)
+
+                                if zbConfig.DiscordWebHook then
+                                    TriggerServerEvent("zubul:discordPrendreVehicule",zbConfig.HelicoGarageLSPD[k].nom)
+                                end
+
+                                RequestModel(voiture)
+                                while not HasModelLoaded(voiture) do
+                                    RequestModel(voiture)
+                                    RageUI.Text({ message = "Spawn du véhicule en cours ...", time_display = 1 })
+                                    Citizen.Wait(0)
+                                end
+
+                                local vehicle = CreateVehicle(voiture, zbConfig.CoordonnesVehiculeSpawn.x, zbConfig.CoordonnesVehiculeSpawn.y, zbConfig.CoordonnesVehiculeSpawn.z, zbConfig.CoordonnesVehiculeSpawn.heading, true, false)
+                                SetEntityAsMissionEntity(vehicle, true, true)
+                                local plaque = "LSPD "..math.random(00,99)
+                                SetVehicleNumberPlateText(vehicle, plaque)
+                                SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
+                                SetVehicleExtra(vehicle , 1, 0)
+                                SetVehicleExtra(vehicle , 2, 0)
+                                SetVehicleExtra(vehicle , 3, 0)
+                                SetVehicleExtra(vehicle , 4, 0)
+                                SetVehicleExtra(vehicle , 5, 0)
+                                SetVehicleExtra(vehicle , 6, 0)
+                                SetVehicleExtra(vehicle , 7, 0)
+                                SetVehicleExtra(vehicle , 8, 0)
+
+                                SetVehicleLivery(vehicle, 0)
+
+
+                                RageUI.CloseAll()
+                                if extramenu == true then
+                                    OpenClothUi() 
+                                end
+                            end
+                        end) 
+                    end
+                end
+            end, function()
+            end)
+        if not RageUI.Visible(zbvehiculeAerienListe) then
+            zbvehiculeAerienListe = RMenu:DeleteType("Garage LSPD", true)
         end
     end
 end
@@ -611,6 +690,34 @@ Citizen.CreateThread(function()
                 RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au garage", time_display = 1 })
                 if IsControlJustPressed(1,51) then           
                     vehiculeListe()
+                    Citizen.Wait(10)
+                end   
+            end
+        end
+
+    Citizen.Wait(sleep)
+
+    end
+end)
+
+-- garage helico
+Citizen.CreateThread(function()
+    while true do
+
+        local sleep = 600
+        
+        if ESX.PlayerData.job and ESX.PlayerData.job.name == 'police' then
+        local plyCoords = GetEntityCoords(PlayerPedId(), false)
+        local dist = Vdist(plyCoords.x, plyCoords.y, plyCoords.z, zbConfig.CoordonnesGarageHelicoLSPD.x, zbConfig.CoordonnesGarageHelicoLSPD.y, zbConfig.CoordonnesGarageHelicoLSPD.z)
+        if dist <= 8.0 then
+            sleep = 0
+            DrawMarker(20, zbConfig.CoordonnesGarageHelicoLSPD.x, zbConfig.CoordonnesGarageHelicoLSPD.y, zbConfig.CoordonnesGarageHelicoLSPD.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 0, 0, 255, 255, 0, 1, 2, 0, nil, nil, 0)
+            end
+            if dist <= 3.0 then
+                sleep = 0   
+                RageUI.Text({ message = "Appuyez sur ~b~[E]~s~ pour accéder au garage", time_display = 1 })
+                if IsControlJustPressed(1,51) then           
+                    vehiculeAerienListe()
                     Citizen.Wait(10)
                 end   
             end

@@ -38,6 +38,20 @@ Citizen.CreateThread(function()
     SetBlockingOfNonTemporaryEvents(ped2, true)
     FreezeEntityPosition(ped2, true)
 
+    local nomPed3 = GetHashKey(zbConfig.GarageHelicoLSPDPed.model)
+    while not HasModelLoaded(nomPed3) do
+        RequestModel(nomPed3)
+        Wait(60)
+    end
+    local spawnPos3 = vector3(zbConfig.GarageHelicoLSPDPed.x,zbConfig.GarageHelicoLSPDPed.y,zbConfig.GarageHelicoLSPDPed.z-1)
+    local heading3 = zbConfig.GarageHelicoLSPDPed.heading
+
+    local ped3 = CreatePed(9, nomPed3, spawnPos3, heading3, false, false)
+
+    SetEntityInvincible(ped3, true)
+    SetBlockingOfNonTemporaryEvents(ped3, true)
+    FreezeEntityPosition(ped3, true)
+
 end)
 
 function creerBlipEntite(entity,nom,sprite,display,scale,colour)

@@ -35,30 +35,29 @@ server_scripts {
     "srv_outils.lua"
 }
 
--- fFouille by Fellow 
+-- MDT
 
-client_scripts {
-    "fFouille/cl_fouille.lua",
+shared_scripts {
+	'mdt/locale.lua',
+	'mdt/config.lua'
 }
 
-server_scripts {
-    "fFouille/srv_fouille.lua",
+client_script "mdt/client/**/*"
+server_script{
+	"mdt/server/utils.lua",
+	"mdt/server/*.lua"
 }
 
--- Livery Menu UI
-
-ui_page {
-	'html/index.html',
-}
-
+ui_page 'mdt/web/build/index.html'
 files {
-	'html/fonts/*.woff',
-	'html/fonts/*.woff2',
-	'html/fonts/*.ttf',
-	'html/css/*.css',
-	'html/js/*.js',
-	'html/index.html',
-	"html/fontawesome/webfonts/*.ttf",
-	"html/fontawesome/css/*.css",
-	"html/img/*.png",
+	'mdt/web/build/index.html',
+	'mdt/web/build/**/*',
 }
+
+escrow_ignore {
+	"mdt/config.lua",
+	"mdt/locale.lua",
+	"mdt/client/**/*",
+	"mdt/server/**/*"
+}
+dependency '/assetpacks'
